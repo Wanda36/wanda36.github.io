@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FocusSeg | Focus on the Hard · TIP 2026</title>
+<meta name="description" content="FocusSeg: SAM-Based Prompt-Guided Refinement for RGB-T Semantic Segmentation. IEEE TIP 2026. Official paper, code, datasets and results.">
+<meta name="theme-color" content="#f6faf5">
+<meta property="og:title" content="Focus on the Hard: SAM-Based Prompt-Guided Refinement for RGB-T Semantic Segmentation">
+<meta property="og:description" content="FocusSeg · IEEE Transactions on Image Processing, 2026. Identify hard cross-modal regions and refine them with class-aware SAM prompts.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://wanda36.github.io/FocusSeg/">
+<meta property="og:image" content="https://wanda36.github.io/FocusSeg/assets/framework.png">
+<link rel="canonical" href="https://wanda36.github.io/FocusSeg/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+<script defer src="script.js"></script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<main id="content">
+<section class="hero">
+<h1><span>Focus on the Hard</span>: SAM-Based Prompt-Guided Refinement for RGB-T Semantic Segmentation</h1>
+<p class="authors"><span>Yuqing Wang<sup>1</sup>,</span> <span>Hao Tang<sup>2</sup>,</span> <span>Yi Shi<sup>1</sup>,</span> <span>Kaihui Yang<sup>1</sup>,</span> <span>Junwei Han<sup>3</sup>,</span> <span>Dingwen Zhang<sup>1,†</sup></span></p>
+<div class="affiliations">
+<p><sup>1</sup>Northwestern Polytechnical University</p>
+<p><sup>2</sup>Peking University</p>
+<p><sup>3</sup>Chongqing University of Posts and Telecommunications</p>
+</div>
+<p class="corresponding">† Corresponding author</p>
+<p class="venue"><strong>IEEE Transactions on Image Processing (TIP), 2026</strong><br>Volume 35, Pages 10559–10572</p>
+<div class="resources">
+<a href="https://doi.org/10.1109/TIP.2026.3728642"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h8l4 4v16H6zM14 2v5h4M9 12h6M9 16h6"/></svg> Paper</a>
+<a href="https://github.com/Wanda36/FocusSeg"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 6-6 6 6 6m8-12 6 6-6 6M14 3l-4 18"/></svg> Code</a>
+<a href="#datasets"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 4 16 4 16 0V5M4 12c0 4 16 4 16 0"/></svg> Datasets</a>
+<a href="#citation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6v7H4v-7Zm10 0h6v7h-6v-7ZM10 12c0 5-3 7-6 7m16-7c0 5-3 7-6 7"/></svg> BibTeX</a>
+</div>
+</section>
+<section class="section abstract" id="abstract">
+<h2>Abstract</h2>
+<p>RGB-Thermal semantic segmentation is essential for robust visual understanding in autonomous driving, surveillance, and search-and-rescue applications. While RGB and thermal modalities provide complementary information, cross-modal difficult regions with ambiguous boundaries and conflicting signals represent the primary performance bottleneck. Existing methods treat all regions uniformly and lack principled approaches for targeting these critical challenging areas. To address this limitation, we propose FocusSeg, a prompt-guided refinement framework embodying “Focus on the Hard” to systematically identify and refine difficult cross-modal regions. Our approach employs a two-stage framework: first establishing multi-modal understanding, then introducing intelligent point-based correction. Specifically, the framework integrates a Difficult Point Sampling Strategy (DPSS) for dynamic challenging region identification, a Multimodal Correction Module (MMCM) for training specialized correction heads, and a Point Correction Strategy (PCS) combining correction-head predictions with historical priors to generate reliable corrective prompts. These refined prompts guide a class-aware SAM framework toward superior targeted refinement. Extensive experiments on multiple RGB-T datasets demonstrate substantial improvements over state-of-the-art methods, with particularly notable gains in challenging scenarios involving cross-modal conflicts and boundary ambiguities. Our work establishes a new paradigm for intelligent resource allocation in multimodal segmentation tasks.</p>
+</section>
+<section class="section" id="method">
+<h2>Method</h2>
+<p class="section-intro">FocusSeg learns a coarse multimodal understanding, then concentrates refinement on difficult regions through point prompts.</p>
+<figure>
+  <a class="zoom" href="assets/framework.png"><img src="assets/framework.png" alt="FocusSeg framework: two-stage training, difficult point sampling, multimodal correction and prompt-guided refinement" loading="lazy"></a>
+  <figcaption><strong>Figure 2.</strong> Overview of FocusSeg. Stage 1 learns coarse segmentation and a correction head; Stage 2 refines segmentation through class-aware prompts.</figcaption>
+</figure>
+<p><strong>Difficult Point Sampling Strategy (DPSS)</strong> identifies challenging points using uncertainty, boundaries and error-prone regions. The <strong>Multimodal Correction Module (MMCM)</strong> learns point-wise correction from RGB and thermal features. The <strong>Point Correction Strategy (PCS)</strong> combines correction-head predictions with a historical prior to form reliable class-aware prompts.</p>
+<details><summary>Why focus on hard regions?</summary><figure>
+  <a class="zoom" href="assets/motivation.png"><img src="assets/motivation.png" alt="Uniform processing versus targeted refinement of difficult cross-modal regions" loading="lazy"></a>
+  <figcaption><strong>Figure 1.</strong> FocusSeg allocates refinement to hard regions instead of treating every region uniformly.</figcaption>
+</figure></details>
+<details><summary>Point Correction Strategy</summary><figure class="compact">
+  <a class="zoom" href="assets/point-correction-strategy.png"><img src="assets/point-correction-strategy.png" alt="Point correction using correction-head logits and historical-prior candidate intersection" loading="lazy"></a>
+  <figcaption><strong>Figure 3.</strong> The Point Correction Strategy combines learned correction predictions with historical priors.</figcaption>
+</figure><p>During training, PCS intersects correction-head and historical-prior candidates and filters unreliable corrections using ground-truth supervision. This training-time correction should be distinguished from automatic inference, which does not access ground-truth labels.</p></details>
+</section>
+<section class="section" id="results">
+<h2>Quantitative Results</h2>
+<p class="section-intro">Reported mIoU: <strong>58.10%</strong> on KP, <strong>73.40%</strong> on FMB, <strong>90.09%</strong> on PST900 and <strong>79.08%</strong> on MSRS.</p>
+<p class="figure-note">The tables below are reproduced as images from the published paper. Click any figure to enlarge.</p>
+<figure>
+  <a class="zoom" href="assets/table-1-kp.png"><img src="assets/table-1-kp.png" alt="Table I: published quantitative comparisons on KP" loading="lazy"></a>
+  <figcaption><strong>Table I.</strong> Quantitative comparison on KP. mIoU is reported in percent; higher is better.</figcaption>
+</figure>
+<figure>
+  <a class="zoom" href="assets/table-2-fmb.png"><img src="assets/table-2-fmb.png" alt="Table II: published quantitative comparisons on FMB" loading="lazy"></a>
+  <figcaption><strong>Table II.</strong> Quantitative comparison on FMB. mIoU is reported in percent; higher is better.</figcaption>
+</figure>
+<figure>
+  <a class="zoom" href="assets/table-3-pst900.png"><img src="assets/table-3-pst900.png" alt="Table III: published quantitative comparisons on PST900" loading="lazy"></a>
+  <figcaption><strong>Table III.</strong> Quantitative comparison on PST900. mIoU is reported in percent; higher is better.</figcaption>
+</figure>
+<figure>
+  <a class="zoom" href="assets/table-4-msrs.png"><img src="assets/table-4-msrs.png" alt="Table IV: published quantitative comparisons on MSRS" loading="lazy"></a>
+  <figcaption><strong>Table IV.</strong> Quantitative comparison on MSRS. mIoU is reported in percent; higher is better.</figcaption>
+</figure>
+</section>
+<section class="section" id="qualitative">
+<h2>Qualitative Results</h2>
+<figure>
+  <a class="zoom" href="assets/results-fmb.png"><img src="assets/results-fmb.png" alt="Qualitative RGB-thermal segmentation comparisons on FMB" loading="lazy"></a>
+  <figcaption><strong>Figure 6.</strong> FMB qualitative comparisons. Blue boxes highlight improved regions.</figcaption>
+</figure>
+<details><summary>Comparisons on KP, PST900 and MSRS</summary><figure class="compact">
+  <a class="zoom" href="assets/results-kp.png"><img src="assets/results-kp.png" alt="Qualitative segmentation comparisons on KP" loading="lazy"></a>
+  <figcaption><strong>Figure 5.</strong> Qualitative results on KP.</figcaption>
+</figure>
+<figure>
+  <a class="zoom" href="assets/results-pst900.png"><img src="assets/results-pst900.png" alt="Qualitative segmentation comparisons on PST900" loading="lazy"></a>
+  <figcaption><strong>Figure 7.</strong> Qualitative results on PST900.</figcaption>
+</figure>
+<figure>
+  <a class="zoom" href="assets/results-msrs.png"><img src="assets/results-msrs.png" alt="Qualitative segmentation comparisons on MSRS" loading="lazy"></a>
+  <figcaption><strong>Figure 8.</strong> Qualitative results on MSRS.</figcaption>
+</figure></details>
+<h3>What point correction changes</h3>
+<figure>
+  <a class="zoom" href="assets/point-correction-effect.png"><img src="assets/point-correction-effect.png" alt="Ground truth, coarse predictions and refined predictions on four datasets" loading="lazy"></a>
+  <figcaption><strong>Figure 9.</strong> Point correction effects on KP, FMB, PST900 and MSRS. The columns compare ground truth, coarse predictions and fine predictions.</figcaption>
+</figure>
+</section>
+<section class="section" id="datasets">
+<h2>Datasets & Getting Started</h2>
+<p class="section-intro">FocusSeg supports four RGB–thermal segmentation benchmarks. Obtain each dataset from its original source and prepare paired RGB, thermal and label CSVs.</p>
+<ul class="dataset-links">
+<li><a href="https://github.com/Linfeng-Tang/MSRS">MSRS</a><span>9 semantic classes</span></li>
+<li><a href="https://github.com/JinyuanLiu-CV/SegMiF#fmb-dataset">FMB</a><span>14 semantic classes</span></li>
+<li><a href="https://github.com/yeong-dev/MS-UDA#about-dataset">KP</a><span>19 semantic classes</span></li>
+<li><a href="https://github.com/ShreyasSkandanS/pst900_thermal_rgb#pst900-dataset">PST900</a><span>5 semantic classes</span></li>
+</ul>
+<p class="getting-started"><a href="https://github.com/Wanda36/FocusSeg#getting-started">Environment, SAM weights, dataset preparation, training & evaluation ↗</a></p>
+</section>
+<section class="section citation" id="citation">
+<div class="citation-heading"><h2>BibTeX</h2><button id="copy-citation" type="button">Copy</button></div>
+<pre><code id="bibtex">@article{wang2026focusseg,
+  title   = {Focus on the Hard: SAM-Based Prompt-Guided Refinement for RGB-T Semantic Segmentation},
+  author  = {Wang, Yuqing and Tang, Hao and Shi, Yi and Yang, Kaihui and Han, Junwei and Zhang, Dingwen},
+  journal = {IEEE Transactions on Image Processing},
+  year    = {2026},
+  volume  = {35},
+  pages   = {10559--10572},
+  doi     = {10.1109/TIP.2026.3728642}
+}</code></pre>
+<p id="copy-status" role="status" aria-live="polite"></p>
+<a class="bib-download" href="assets/focusseg.bib" download>Download BibTeX</a>
+</section>
+</main>
+<footer><p>FocusSeg · IEEE TIP 2026</p><a href="https://doi.org/10.1109/TIP.2026.3728642">10.1109/TIP.2026.3728642</a> · <a href="https://github.com/Wanda36/FocusSeg">Code ↗</a></footer>
+<dialog id="lightbox" aria-label="Enlarged paper figure"><button id="close-lightbox" aria-label="Close enlarged figure">Close ×</button><img id="lightbox-image" alt=""></dialog>
+</body>
+</html>
